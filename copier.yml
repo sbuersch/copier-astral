@@ -32,11 +32,6 @@ postgres_port:
   help: Postgres Port
   default: 5432
 
-create_superuser:
-  type: bool
-  help: Create admin superuser now?
-  default: yes
-
 description:
   type: str
   help: Project description
@@ -119,11 +114,7 @@ _tasks:
   # Run migrations
   - "cd {{ project_slug }} && echo '🚀 Running migrations...' && uv run python manage.py migrate"
 
-{% if create_superuser %}
-  - "cd {{ project_slug }} && echo '👤 Creating superuser (you will be prompted for password)...' && uv run python manage.py createsuperuser --username admin --email admin@example.com || echo '⚠️  Superuser creation skipped or failed'"
-{% else %}
-  - "cd {{ project_slug }} && echo '⏭️  Skipping superuser creation (as requested)'"
-{% endif %}
+  - "cd {{ project_slug }} && echo '👤 Create superuser? (y/n)' && read -r answer && if [ \"$answer\" = \"y\" ]; then uv run python manage.py createsuperuser --username admin --email admin@example.com; else echo '⏭️  Skipping superuser creation'; fi"
 
   - "echo '✅ Django project {{ project_name }} created! Run: cd {{ project_slug }} && docker-compose up -d db && uv run python manage.py runserver'"
 
