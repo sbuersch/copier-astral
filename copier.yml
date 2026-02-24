@@ -101,6 +101,7 @@ use_debug_toolbar:
   default: yes
 
 _tasks:
+  - "cd {{ project_slug }} && mkdir -p static media templates"
   - "cd {{ project_slug }} && echo '📍 Project root:' && pwd"
   - "cd {{ project_slug }} && echo '📦 Running uv sync...' && uv sync"
   - "cd {{ project_slug }} && ([ -f .env.example ] && cp .env.example .env || echo '⚠️  No .env.example')"
