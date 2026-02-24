@@ -32,15 +32,6 @@ description:
   help: Project description
   default: A Django project
 
-author_name:
-  type: str
-  help: Your name
-  default: "{{ _copier_conf.user or 'Anonymous' }}"
-
-author_email:
-  type: str
-  help: Your email
-  default: "{{ _copier_conf.email or 'anonymous@example.com' }}"
 
 python_version:
   type: str
@@ -96,15 +87,21 @@ use_debug_toolbar:
   default: yes
 
 _tasks:
-  - "echo '📁 Current directory:' && pwd"
-  - "echo '📂 Listing files:' && ls -la"
-  - "echo '🔍 Checking if {{ project_slug }} exists:' && ([ -d {{ project_slug }} ] && echo '✅ Directory exists' || echo '❌ Directory missing')"
-  - "echo '📋 Contents of {{ project_slug }} (if exists):' && (cd {{ project_slug }} 2>/dev/null && ls -la || echo 'Cannot enter directory')"
-  - "cd {{ project_slug }} && echo '📍 Now in:' && pwd && echo '📦 Running uv sync...' && uv sync"
-  - "cd {{ project_slug }} && ([ -f .env.example ] && (echo '📄 Copying .env.example → .env' && cp .env.example .env) || echo '⚠️  .env.example not found, skipping')"
-  - "cd {{ project_slug }} && ([ -f manage.py ] && (echo '🚀 Running migrations...' && uv run python manage.py migrate) || (echo '❌ manage.py not found!' && ls -la && exit 1))"
-  - "cd {{ project_slug }} && ([ -f manage.py ] && (echo '👤 Creating superuser...' && uv run python manage.py createsuperuser --noinput --username admin --email admin@example.com) || echo '⚠️  Skipping superuser creation')"
-  - "echo '✅ Django project {{ project_name }} created successfully! cd {{ project_slug }} and run: cd {{ project_slug }} && uv run python manage.py runserver'"
+  - "cd {{ project_slug }} && echo '📍 Project root:' && pwd"
+  - "cd {{ project_slug }} && echo '📦 Running uv sync...' && uv sync"
+  - "cd {{ project_slug }} && ([ -f .env.example ] && cp .env.example .env || echo '⚠️  No .env.example')"
+
+  # Start PostgreSQL with Docker
+  - "cd {{ project_slug }} && echo '🐘 Starting PostgreSQL with Docker...' && docker-compose up -d db"
+  - "cd {{ project_slug }} && echo '⏳ Waiting for PostgreSQL to be ready...' && sleep 5"
+  - "cd {{ project_slug }} && docker-compose exec -T db pg_isready -U postgres || (echo '❌ PostgreSQL not ready' && exit 1)"
+
+  # Run migrations
+  - "cd {{ project_slug }} && echo '🚀 Running migrations...' && uv run python manage.py migrate"
+  - "cd {{ project_slug }} && echo '👤 Creating superuser...' && uv run python manage.py createsuperuser --noinput --username admin --email admin@example.com || true"
+
+  - "echo '✅ Django project {{ project_name }} created! Run: cd {{ project_slug }} && docker-compose up -d db && uv run python manage.py runserver'"
+  -
 _exclude:
   - "copier.yml"
   - "*.pyc"
@@ -145,25 +142,6 @@ repository_name:
   type: str
   help: "Repository name on GitHub"
   default: "{{ project_name | slugify }}"
-
-# =============================================================================
-# Python Version
-# =============================================================================
-
-python_version:
-  type: str
-  help: "Minimum Python version"
-  choices:
-    - "3.10"
-    - "3.11"
-    - "3.12"
-    - "3.13"
-  default: "3.12"
-
-python_versions_matrix:
-  type: str
-  help: "Python versions for CI matrix testing (comma-separated)"
-  default: "3.10,3.11,3.12,3.13"
 
 # =============================================================================
 # Features
