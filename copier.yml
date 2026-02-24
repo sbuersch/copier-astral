@@ -16,29 +16,96 @@ _skip_if_exists:
 # Project Basics
 # =============================================================================
 
+# Questions for the user
 project_name:
   type: str
-  help: "Project name (human-readable)"
-  placeholder: "My Awesome Project"
-  validator: >-
-    {% if not project_name %}
-    Project name is required.
-    {% endif %}
-
-project_description:
-  type: str
-  help: "Short project description"
-  placeholder: "A Python package that does amazing things"
-  default: "A Python package"
+  help: What is your Django project name?
+  default: my-django-project
 
 project_slug:
   type: str
-  help: "Python package name (used for imports)"
-  default: "{{ project_name | slugify | replace('-', '_') }}"
-  validator: >-
-    {% if not project_slug | regex_search('^[a-z][a-z0-9_]*$') %}
-    Package name must start with a letter and contain only lowercase letters, numbers, and underscores.
-    {% endif %}
+  help: Python package name (lowercase, underscores)
+  default: "{{ project_name|lower|replace('-', '_')|replace(' ', '_') }}"
+
+description:
+  type: str
+  help: Project description
+  default: A Django project
+
+author_name:
+  type: str
+  help: Your name
+  default: "{{ _copier_conf.user or 'Anonymous' }}"
+
+author_email:
+  type: str
+  help: Your email
+  default: "{{ _copier_conf.email or 'anonymous@example.com' }}"
+
+python_version:
+  type: str
+  help: Python version
+  choices:
+    - "3.11"
+    - "3.12"
+    - "3.13"
+  default: "3.12"
+
+django_version:
+  type: str
+  help: Django version
+  choices:
+    - "5.1"
+    - "5.0"
+    - "4.2"
+  default: "5.1"
+
+use_postgres:
+  type: bool
+  help: Use PostgreSQL instead of SQLite?
+  default: yes
+
+use_docker:
+  type: bool
+  help: Include Docker configuration?
+  default: yes
+
+use_celery:
+  type: bool
+  help: Include Celery for async tasks?
+  default: no
+
+use_redis:
+  type: bool
+  help: Include Redis for caching?
+  default: "{{ use_celery }}"
+
+use_allauth:
+  type: bool
+  help: Include django-allauth for authentication?
+  default: yes
+
+use_rest_framework:
+  type: bool
+  help: Include Django REST Framework?
+  default: yes
+
+use_debug_toolbar:
+  type: bool
+  help: Include Django Debug Toolbar?
+  default: yes
+
+_tasks:
+  - "cd {{ project_slug }} && uv sync"
+  - "cd {{ project_slug }} && cp .env.example .env"
+  - "cd {{ project_slug }} && python manage.py migrate"
+  - "cd {{ project_slug }} && python manage.py createsuperuser --noinput --username admin --email admin@example.com || true"
+  - "echo 'Django project {{ project_name }} created successfully! cd {{ project_slug }} and run python manage.py runserver'"
+_exclude:
+  - "copier.yml"
+  - "*.pyc"
+  - "__pycache__"
+  - ".git"
 
 # =============================================================================
 # Author Information
