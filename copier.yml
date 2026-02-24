@@ -112,7 +112,7 @@ _tasks:
 
   # Run migrations
   - "cd {{ project_slug }} && echo '🚀 Running migrations...' && uv run python manage.py migrate"
-  - "cd {{ project_slug }} && echo '👤 Creating superuser...' && uv run python manage.py createsuperuser --noinput --username admin --email admin@example.com || true"
+  - "cd {{ project_slug }} && echo '👤 Creating superuser (you will be prompted for password)...' && uv run python manage.py createsuperuser --username admin --email admin@example.com || true"
 
   - "echo '✅ Django project {{ project_name }} created! Run: cd {{ project_slug }} && docker-compose up -d db && uv run python manage.py runserver'"
 
