@@ -61,6 +61,10 @@ MIDDLEWARE = [
     {% if use_debug_toolbar and DEBUG %}
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     {% endif %}
+     {% if use_allauth %}
+    # Required for django-allauth
+    'allauth.account.middleware.AccountMiddleware',
+    {% endif %}
 ]
 
 ROOT_URLCONF = '{{ project_slug }}.urls'
