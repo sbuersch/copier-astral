@@ -96,11 +96,15 @@ use_debug_toolbar:
   default: yes
 
 _tasks:
-  - "cd {{ project_slug }} && uv sync"
-  - "cd {{ project_slug }} && cp .env.example .env"
-  - "cd {{ project_slug }} && python manage.py migrate"
-  - "cd {{ project_slug }} && python manage.py createsuperuser --noinput --username admin --email admin@example.com || true"
-  - "echo 'Django project {{ project_name }} created successfully! cd {{ project_slug }} and run python manage.py runserver'"
+  - "echo '📁 Current directory:' && pwd"
+  - "echo '📂 Listing files:' && ls -la"
+  - "echo '🔍 Checking if {{ project_slug }} exists:' && ([ -d {{ project_slug }} ] && echo '✅ Directory exists' || echo '❌ Directory missing')"
+  - "echo '📋 Contents of {{ project_slug }} (if exists):' && (cd {{ project_slug }} 2>/dev/null && ls -la || echo 'Cannot enter directory')"
+  - "cd {{ project_slug }} && echo '📍 Now in:' && pwd && echo '📦 Running uv sync...' && uv sync"
+  - "cd {{ project_slug }} && ([ -f .env.example ] && (echo '📄 Copying .env.example → .env' && cp .env.example .env) || echo '⚠️  .env.example not found, skipping')"
+  - "cd {{ project_slug }} && ([ -f manage.py ] && (echo '🚀 Running migrations...' && python manage.py migrate) || (echo '❌ manage.py not found!' && ls -la && exit 1))"
+  - "cd {{ project_slug }} && ([ -f manage.py ] && (echo '👤 Creating superuser...' && python manage.py createsuperuser --noinput --username admin --email admin@example.com) || echo '⚠️  Skipping superuser creation')"
+  - "echo '✅ Django project {{ project_name }} created successfully! cd {{ project_slug }} and run python manage.py runserver'"
 _exclude:
   - "copier.yml"
   - "*.pyc"
