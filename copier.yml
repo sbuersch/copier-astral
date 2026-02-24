@@ -27,6 +27,11 @@ project_slug:
   help: Python package name (lowercase, underscores)
   default: "{{ project_name|lower|replace('-', '_')|replace(' ', '_') }}"
 
+postgres_port:
+  type: str
+  help: Postgres Port
+  default: 5432
+
 description:
   type: str
   help: Project description
