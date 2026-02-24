@@ -32,6 +32,15 @@ description:
   help: Project description
   default: A Django project
 
+author_name:
+  type: str
+  help: Your name
+  default: "{{ _copier_conf.user or 'Anonymous' }}"
+
+author_email:
+  type: str
+  help: Your email
+  default: "{{ _copier_conf.email or 'anonymous@example.com' }}"
 
 python_version:
   type: str
@@ -101,7 +110,7 @@ _tasks:
   - "cd {{ project_slug }} && echo '👤 Creating superuser...' && uv run python manage.py createsuperuser --noinput --username admin --email admin@example.com || true"
 
   - "echo '✅ Django project {{ project_name }} created! Run: cd {{ project_slug }} && docker-compose up -d db && uv run python manage.py runserver'"
-  -
+
 _exclude:
   - "copier.yml"
   - "*.pyc"
@@ -146,6 +155,16 @@ repository_name:
 # =============================================================================
 # Python Version
 # =============================================================================
+
+python_version:
+  type: str
+  help: "Minimum Python version"
+  choices:
+    - "3.10"
+    - "3.11"
+    - "3.12"
+    - "3.13"
+  default: "3.12"
 
 python_versions_matrix:
   type: str
